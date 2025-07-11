@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ADSW Studios Bug Tracker</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3.2.0/dist/email.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        
+        :root {
+            --primary: #4361ee;
+            --secondary: #3f37c9;
+            --accent: #4895ef;
+            --success: #4cc9f0;
+            --dark: #2b2d42;
+            --light: #f8f9fa;
+            --danger: #e63946;
+            --warning: #ff9e00;
+            --gray: #8d99ae;
+            --card-bg: rgba(30, 40, 60, 0.5);
+            --header-bg: rgba(10, 25, 47, 0.85);
+            --text: #f8f9fa;
+            --bg: #16213e;
+            --bg-gradient: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            --card-border: rgba(255, 255, 255, 0.1);
+        }
+        
+        body.light-theme {
+            --text: #2b2d42;
+            --bg: #f8f9fa;
+            --bg-gradient: linear-gradient(135deg, #e6e9f0 0%, #eef1f5 100%);
+            --card-bg: rgba(255, 255, 255, 0.85);
+            --header-bg: rgba(255, 255, 255, 0.95);
+            --card-border: rgba(0, 0, 0, 0.1);
+            --gray: #5a6268;
+        }
+        
+        body {
+            background: var(--bg-gradient);
+            color: var(--text);
+            min-height: 100vh;
+            padding-bottom: 50px;
+        }
+        
+        header {
+            background: var(--header-bg);
+            backdrop-filter: blur(10px);
+            padding: 1rem 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--accent);
+        }
+        
+        .logo i {
+            color: var(--primary);
+        }
+        
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 1.5rem;
+            align-items: center;
+        }
+        
+        nav a {
+            color: var(--text);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 1.1rem;
+            transition: color 0.3s;
+            padding: 8px 15px;
+            border-radius: 30px;
+        }
+        
+        nav a:hover, nav a.active {
+            color: var(--accent);
+            background: rgba(67, 97, 238, 0.1);
+        }
+        
+        .controls {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .theme-switcher, .lang-switcher {
+            display: flex;
+            background: rgba(30, 40, 60, 0.7);
+            border-radius: 30px;
+            overflow: hidden;
+            height: 40px;
+        }
+        
+        body.light-theme .theme-switcher,
+        body.light-theme .lang-switcher {
+            background: rgba(200, 200, 200, 0.4);
+        }
+        
+        .theme-btn, .lang-btn {
+            padding: 8px 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .theme-btn.active, .lang-btn.active {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .hero {
+            text-align: center;
+            padding: 5rem 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(90deg, var(--accent), var(--success));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .hero p {
+            font-size: 1.3rem;
+            max-width: 800px;
+            margin: 0 auto 2rem;
+            color: var(--gray);
+            position: relative;
+            z-index: 2;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 20px;
+        }
+        
+        .card {
+            background: var(--card-bg);
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            margin: 2rem 0;
+            border: 1px solid var(--card-border);
+            backdrop-filter: blur(10px);
+        }
+        
+        .card-header {
+            padding: 20px 30px;
+            background: rgba(67, 97, 238, 0.2);
+            border-bottom: 1px solid var(--card-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        body.light-theme .card-header {
+            background: rgba(67, 97, 238, 0.1);
+        }
+        
+        .card-header h2 {
+            font-size: 2rem;
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .card-body {
+            padding: 30px;
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 10px;
+            color: var(--gray);
+            font-weight: 500;
+            font-size: 1.1rem;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 15px 20px;
+            background: rgba(30, 40, 60, 0.1);
+            border: 1px solid var(--card-border);
+            border-radius: 10px;
+            color: var(--text);
+            font-size: 1rem;
+        }
+        
+        body.light-theme .form-control {
+            background: rgba(255, 255, 255, 0.7);
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.3);
+        }
+        
+        textarea.form-control {
+            min-height: 180px;
+            resize: vertical;
+        }
+        
+        .btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 15px 35px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 10px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .btn:hover {
+            background: var(--secondary);
+        }
+        
+        .btn i {
+            font-size: 1.2rem;
+        }
+        
+        .btn-block {
+            display: block;
+            width: 100%;
+            text-align: center;
+        }
+        
+        .priority-selector {
+            display: flex;
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .priority-option {
+            flex: 1;
+            text-align: center;
+            padding: 15px;
+            border-radius: 10px;
+            background: rgba(30, 40, 60, 0.1);
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+        
+        body.light-theme .priority-option {
+            background: rgba(200, 200, 200, 0.2);
+        }
+        
+        .priority-option:hover {
+            background: rgba(30, 40, 60, 0.2);
+        }
+        
+        body.light-theme .priority-option:hover {
+            background: rgba(200, 200, 200, 0.3);
+        }
+        
+        .priority-option.selected {
+            border-color: var(--accent);
+        }
+        
+        .priority-option.low { color: #4ade80; }
+        .priority-option.medium { color: #fbbf24; }
+        .priority-option.high { color: #f87171; }
+        .priority-option.critical { color: #ef4444; }
+        
+        .priority-option i {
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 2.5rem;
+            margin-top: 3rem;
+            color: var(--gray);
+            border-top: 1px solid var(--card-border);
+            background: var(--header-bg);
+        }
+        
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin: 3rem 0;
+        }
+        
+        .feature-card {
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            border: 1px solid var(--card-border);
+        }
+        
+        .feature-card i {
+            font-size: 3.5rem;
+            margin-bottom: 20px;
+            color: var(--accent);
+        }
+        
+        .feature-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: var(--success);
+        }
+        
+        .feature-card p {
+            color: var(--gray);
+            line-height: 1.6;
+        }
+        
+        .confirmation {
+            display: none;
+            background: rgba(30, 40, 60, 0.8);
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            margin-top: 30px;
+            border: 2px solid var(--success);
+        }
+        
+        body.light-theme .confirmation {
+            background: rgba(255, 255, 255, 0.9);
+        }
+        
+        .confirmation i {
+            font-size: 4rem;
+            color: var(--success);
+            margin-bottom: 20px;
+        }
+        
+        .confirmation h3 {
+            font-size: 2rem;
+            margin-bottom: 15px;
+            color: var(--text);
+        }
+        
+        .confirmation p {
+            color: var(--gray);
+            font-size: 1.2rem;
+            max-width: 700px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+        
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+            
+            .hero p {
+                font-size: 1.1rem;
+            }
+            
+            nav ul {
+                gap: 0.8rem;
+            }
+            
+            nav a {
+                font-size: 0.9rem;
+                padding: 6px 12px;
+            }
+            
+            .priority-selector {
+                flex-direction: column;
+            }
+            
+            .feature-card {
+                padding: 20px;
+            }
+            
+            .controls {
+                flex-direction: column;
+                gap: 8px;
+            }
+        }
+        
+        .adsw-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 700;
+        }
+        
+        .adsw-logo .adsw {
+            color: var(--accent);
+            font-weight: 800;
+        }
+        
+        .adsw-logo .studios {
+            color: var(--text);
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo adsw-logo">
+            <i class="fas fa-bug"></i>
+            <div>
+                <span class="adsw">ADSW</span> 
+                <span class="studios">Studios Bug Tracker</span>
+            </div>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="#" class="active" data-i18n="home">Главная</a></li>
+                <li><a href="#" data-i18n="report_bug">Сообщить об ошибке</a></li>
+                <li class="controls">
+                    <div class="theme-switcher">
+                        <div class="theme-btn" data-theme="light" title="Светлая тема">
+                            <i class="fas fa-sun"></i>
+                        </div>
+                        <div class="theme-btn active" data-theme="dark" title="Темная тема">
+                            <i class="fas fa-moon"></i>
+                        </div>
+                    </div>
+                    <div class="lang-switcher">
+                        <div class="lang-btn active" data-lang="ru">RU</div>
+                        <div class="lang-btn" data-lang="en">EN</div>
+                    </div>
+                </li>
+            </ul>
+        </nav>
+    </header>
+    
+    <section class="hero">
+        <h1 data-i18n="hero_title">Центр отслеживания ошибок ПО</h1>
+        <p data-i18n="hero_text">Помогите нам улучшить наши продукты! Сообщайте о найденных ошибках, и мы оперативно их исправим.</p>
+    </section>
+    
+    <div class="container">
+        <div class="features">
+            <div class="feature-card">
+                <i class="fas fa-bolt"></i>
+                <h3 data-i18n="feature1_title">Быстрая отчетность</h3>
+                <p data-i18n="feature1_text">Сообщайте об ошибках в несколько кликов с помощью интуитивной формы</p>
+            </div>
+            <div class="feature-card">
+                <i class="fas fa-envelope-open-text"></i>
+                <h3 data-i18n="feature2_title">Прямая отправка</h3>
+                <p data-i18n="feature2_text">Отчеты отправляются напрямую в нашу службу поддержки</p>
+            </div>
+            <div class="feature-card">
+                <i class="fas fa-globe"></i>
+                <h3 data-i18n="feature3_title">Мультиязычность</h3>
+                <p data-i18n="feature3_text">Поддержка русского и английского языков для удобства пользователей</p>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <h2><i class="fas fa-bug"></i> <span data-i18n="report_title">Сообщить об ошибке</span></h2>
+            </div>
+            <div class="card-body">
+                <form id="bug-report-form">
+                    <div class="form-group">
+                        <label for="user-email" data-i18n="email_label">Ваш Email</label>
+                        <input type="email" id="user-email" class="form-control" placeholder="Введите ваш email для обратной связи" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="software-name" data-i18n="software_label">Название ПО</label>
+                        <input type="text" id="software-name" class="form-control" placeholder="Введите название программного обеспечения" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="bug-title" data-i18n="bug_title_label">Название ошибки</label>
+                        <input type="text" id="bug-title" class="form-control" placeholder="Кратко опишите проблему" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="bug-description" data-i18n="description_label">Подробное описание</label>
+                        <textarea id="bug-description" class="form-control" placeholder="Опишите, как воспроизвести ошибку, что вы делали, когда она произошла, и что вы ожидали вместо этого" required></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label data-i18n="priority_label">Приоритет ошибки</label>
+                        <div class="priority-selector">
+                            <div class="priority-option low">
+                                <i class="fas fa-info-circle"></i>
+                                <div data-i18n="priority_low">Низкий</div>
+                            </div>
+                            <div class="priority-option medium selected">
+                                <i class="fas fa-exclamation-circle"></i>
+                                <div data-i18n="priority_medium">Средний</div>
+                            </div>
+                            <div class="priority-option high">
+                                <i class="fas fa-bolt"></i>
+                                <div data-i18n="priority_high">Высокий</div>
+                            </div>
+                            <div class="priority-option critical">
+                                <i class="fas fa-skull"></i>
+                                <div data-i18n="priority_critical">Критичный</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-block">
+                        <i class="fas fa-paper-plane"></i> <span data-i18n="submit_button">Отправить отчет</span>
+                    </button>
+                </form>
+                
+                <div id="confirmation" class="confirmation">
+                    <i class="fas fa-check-circle"></i>
+                    <h3 data-i18n="confirmation_title">Отчет успешно отправлен!</h3>
+                    <p data-i18n="confirmation_text">Спасибо за ваше сообщение. Наша команда рассмотрит его в ближайшее время и свяжется с вами при необходимости.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <footer>
+        <p>© 2023 ADSW Studios Bug Tracker. <span data-i18n="rights">Все права защищены.</span></p>
+        <p data-i18n="footer_text">Отслеживание ошибок для улучшения качества программного обеспечения</p>
+    </footer>
+    
+    <script>
+        // Инициализация EmailJS
+        (function() {
+            emailjs.init("xo63BNESV02I0xqCB");
+        })();
+        
+        // Language translation data
+        const translations = {
+            ru: {
+                "home": "Главная",
+                "report_bug": "Сообщить об ошибке",
+                "hero_title": "Центр отслеживания ошибок ПО",
+                "hero_text": "Помогите нам улучшить наши продукты! Сообщайте о найденных ошибках, и мы оперативно их исправим.",
+                "feature1_title": "Быстрая отчетность",
+                "feature1_text": "Сообщайте об ошибках в несколько кликов с помощью интуитивной формы",
+                "feature2_title": "Прямая отправка",
+                "feature2_text": "Отчеты отправляются напрямую в нашу службу поддержки",
+                "feature3_title": "Мультиязычность",
+                "feature3_text": "Поддержка русского и английского языков для удобства пользователей",
+                "report_title": "Сообщить об ошибке",
+                "email_label": "Ваш Email",
+                "software_label": "Название ПО",
+                "bug_title_label": "Название ошибки",
+                "description_label": "Подробное описание",
+                "priority_label": "Приоритет ошибки",
+                "priority_low": "Низкий",
+                "priority_medium": "Средний",
+                "priority_high": "Высокий",
+                "priority_critical": "Критичный",
+                "submit_button": "Отправить отчет",
+                "confirmation_title": "Отчет успешно отправлен!",
+                "confirmation_text": "Спасибо за ваше сообщение. Наша команда рассмотрит его в ближайшее время и свяжется с вами при необходимости.",
+                "rights": "Все права защищены.",
+                "footer_text": "Отслеживание ошибок для улучшения качества программного обеспечения"
+            },
+            en: {
+                "home": "Home",
+                "report_bug": "Report Bug",
+                "hero_title": "Software Bug Tracking Center",
+                "hero_text": "Help us improve our products! Report any bugs you find and we'll fix them promptly.",
+                "feature1_title": "Quick Reporting",
+                "feature1_text": "Report bugs in just a few clicks with our intuitive form",
+                "feature2_title": "Direct Submission",
+                "feature2_text": "Reports are sent directly to our support team",
+                "feature3_title": "Multilingual Support",
+                "feature3_text": "Support for Russian and English languages for user convenience",
+                "report_title": "Report a Bug",
+                "email_label": "Your Email",
+                "software_label": "Software Name",
+                "bug_title_label": "Bug Title",
+                "description_label": "Detailed Description",
+                "priority_label": "Bug Priority",
+                "priority_low": "Low",
+                "priority_medium": "Medium",
+                "priority_high": "High",
+                "priority_critical": "Critical",
+                "submit_button": "Submit Report",
+                "confirmation_title": "Report Successfully Sent!",
+                "confirmation_text": "Thank you for your report. Our team will review it shortly and contact you if needed.",
+                "rights": "All rights reserved.",
+                "footer_text": "Bug tracking for improving software quality"
+            }
+        };
+
+        // Current language
+        let currentLang = 'ru';
+
+        // Apply translations
+        function applyTranslations(lang) {
+            currentLang = lang;
+            document.querySelectorAll('[data-i18n]').forEach(element => {
+                const key = element.getAttribute('data-i18n');
+                if (translations[lang][key]) {
+                    if (element.tagName === 'INPUT' && element.placeholder) {
+                        element.placeholder = translations[lang][key];
+                    } else {
+                        element.textContent = translations[lang][key];
+                    }
+                }
+            });
+            
+            // Update active language button
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.getAttribute('data-lang') === lang) {
+                    btn.classList.add('active');
+                }
+            });
+        }
+
+        // Language switcher
+        document.querySelectorAll('.lang-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const lang = this.getAttribute('data-lang');
+                applyTranslations(lang);
+            });
+        });
+
+        // Theme switcher - РАБОЧАЯ ВЕРСИЯ ИЗ ПРЕДЫДУЩЕГО КОДА
+        function setTheme(theme) {
+            if (theme === 'dark') {
+                document.body.classList.remove('light-theme');
+                localStorage.setItem('theme', 'dark');
+            } else {
+                document.body.classList.add('light-theme');
+                localStorage.setItem('theme', 'light');
+            }
+            
+            // Update active theme button
+            document.querySelectorAll('.theme-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.getAttribute('data-theme') === theme) {
+                    btn.classList.add('active');
+                }
+            });
+        }
+
+        // Theme switcher buttons
+        document.querySelectorAll('.theme-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const theme = this.getAttribute('data-theme');
+                setTheme(theme);
+            });
+        });
+
+        // Priority selection
+        document.querySelectorAll('.priority-option').forEach(option => {
+            option.addEventListener('click', function() {
+                document.querySelectorAll('.priority-option').forEach(opt => {
+                    opt.classList.remove('selected');
+                });
+                this.classList.add('selected');
+            });
+        });
+
+        // Form submission
+        document.getElementById('bug-report-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Get form values
+            const userEmail = document.getElementById('user-email').value;
+            const software = document.getElementById('software-name').value;
+            const title = document.getElementById('bug-title').value;
+            const description = document.getElementById('bug-description').value;
+            const priority = document.querySelector('.priority-option.selected').textContent.trim();
+            
+            // Prepare email parameters
+            const templateParams = {
+                user_email: userEmail,
+                software_name: software,
+                bug_title: title,
+                bug_description: description,
+                priority: priority,
+                language: currentLang
+            };
+            
+            // Send via EmailJS
+            emailjs.send('service_jtmdw5f', 'template_q6hobca', templateParams)
+                .then(function(response) {
+                    console.log('SUCCESS!', response.status, response.text);
+                    
+                    // Show confirmation message
+                    document.getElementById('confirmation').style.display = 'block';
+                    
+                    // Scroll to confirmation
+                    document.getElementById('confirmation').scrollIntoView({ behavior: 'smooth' });
+                    
+                    // Reset form
+                    this.reset();
+                    document.querySelectorAll('.priority-option').forEach(opt => {
+                        opt.classList.remove('selected');
+                    });
+                    document.querySelectorAll('.priority-option')[1].classList.add('selected');
+                }.bind(this), function(error) {
+                    console.log('FAILED...', error);
+                    alert(currentLang === 'ru' 
+                        ? 'Ошибка отправки отчета. Пожалуйста, попробуйте еще раз.' 
+                        : 'Failed to send report. Please try again.');
+                });
+        });
+
+        // Initialize translations and theme
+        applyTranslations('ru');
+        
+        // Load saved theme
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        setTheme(savedTheme);
+    </script>
+</body>
+</html>
